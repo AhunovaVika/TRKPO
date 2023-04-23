@@ -1,0 +1,38 @@
+version: "3.8"
+services:
+    web:
+        build:
+            context: .
+            args:
+                - PORT=8000
+        volumes:
+            - .:/code
+        links:
+            - selenium
+        ports:
+            - target: 8000
+              published: 8000
+
+        depends_on:
+            - db
+            - redis_db
+
+        env_file: .env
+
+    redis_db:
+        image: "redis:5"
+        ports:
+            - "6379:6379"
+    db:
+        image: "postgres:12-alpine"
+        ports:
+            - "5432:5432"
+        environment:
+            - POSTGRES_DB=db
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+    selenium:
+        image: selenium/standalone-chrome-debug:3.7.1
+        ports:
+            - 4444:4444   # Selenium
+            - 5900:5900   # VNC server
