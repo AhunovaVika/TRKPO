@@ -64,6 +64,9 @@ class PlayerTest(TestCase):
     def test_player_increase_money(self):
         self.test_player.increaseMoney(200)
         self.assertEquals(self.test_player.money, 1200)
+
+    def test_player_increase_money2(self):
+        self.test_player.increaseMoney(200)
         self.assertEquals(self.test_player.moneyWon, 200)
 
     def test_moneyWon_cleaning(self):
@@ -112,24 +115,54 @@ class PlayerTest(TestCase):
 
     def test_newRound(self):
         self.test_player.newRound()
-        self.assertEquals(self.test_player.playerIn, True)
-        self.assertEquals(self.test_player.callAmount, 0)
-        self.assertEquals(self.test_player.putIn, 0)
-        self.assertEquals(self.test_player.moneyWon, 0)
+
+    def test_newRound1(self):
+        self.test_player.newRound()
         self.assertEquals(self.test_player.hand, [])
+
+    def test_newRound2(self):
+        self.test_player.newRound()
+        self.assertEquals(self.test_player.moneyWon, 0)
+
+    def test_newRound3(self):
+        self.test_player.newRound()
+        self.assertEquals(self.test_player.putIn, 0)
+
+    def test_newRound4(self):
+        self.test_player.newRound()
+        self.assertEquals(self.test_player.callAmount, 0)
+
+    def test_newRound5(self):
+        self.test_player.newRound()
+        self.assertEquals(self.test_player.playerIn, True)
+
+    def test_newRound6(self):
+        self.test_player.newRound()
         self.assertEquals(self.test_player.handStrength, '')
 
     def test_call(self):
         self.test_player.call(100)
-        self.assertEquals(self.test_player.money, 900)
         self.assertEquals(self.test_player.putIn, 100)
+
+    def test_call2(self):
+        self.test_player.call(100)
+        self.assertEquals(self.test_player.money, 900)
+
+    def test_call3(self):
+        self.test_player.call(100)
         self.assertEquals(self.test_player.callAmount, 0)
 
     def test_call_all_in(self):
         self.test_player.call(1500)
         self.assertEquals(self.test_player.money, 0)
-        self.assertEquals(self.test_player.putIn, 1000)
+
+    def test_call_all_in1(self):
+        self.test_player.call(1500)
         self.assertEquals(self.test_player.callAmount, 0)
+
+    def test_call_all_in2(self):
+        self.test_player.call(1500)
+        self.assertEquals(self.test_player.putIn, 1000)
 
 
 class CardsTest(TestCase):
@@ -166,12 +199,16 @@ class PokerTest(TestCase):
         self.poker = Poker(self.players, self.cards)
 
     def test_Poker_init(self):
-        self.assertEquals(self.poker.players, self.players)
-        self.assertEquals(self.poker.C, self.cards)
         self.assertEquals(self.poker.strengthList, ['High Card', 'Pair', 'Two Pair', \
                                                     'Three of a kind', 'Straight', 'Flush', 'Full House',
                                                     'Four of a kind', \
                                                     'Straight Flush', 'Royal Flush'])
+
+    def test_Poker_init2(self):
+        self.assertEquals(self.poker.players, self.players)
+
+    def test_Poker_init3(self):
+        self.assertEquals(self.poker.C, self.cards)
 
     def test_playerWin(self):
         self.poker.playerWin = self.players[0]
@@ -216,6 +253,21 @@ class PokerTest(TestCase):
         res = self.poker.sorting(hand2, hand1)
         self.assertEquals(res, False)
 
+    def test_sorting_3(self):
+        hand1 = [[7, 0],
+                 [9, 1]
+                 ]
+
+        hand2 = [
+            [7, 0],
+            [9, 1]
+
+        ]
+
+        res = self.poker.sorting(hand2, hand1)
+
+        self.assertEquals(res, 'split')
+
 
 class GameTest(TransactionTestCase):
     def setUp(self):
@@ -254,16 +306,44 @@ class GameTest(TransactionTestCase):
     def test_Game_init(self):
         self.assertEquals(self.game.minimumBet, 100)
 
-    def test_table_group_name(self):
+    def test_game_group_name(self):
+
         self.assertEquals(self.game.tableGroup, 'table_' + str(self.table.pk))
 
     def test_game_players(self):
+
         self.assertEquals(self.game.players, self.players)
+
+
+    def test_game_players2(self):
         self.assertEquals(self.game.noOfPlayers, len(self.players))
 
     def test_table_settings(self):
         self.assertEquals(self.game.comCount, 4)
+
+    def test_table_settings2(self):
+        self.players = [
+            Player("skorol", 900),
+            Player("nuzhdin", 1000),
+            Player("trakhtenberg", 1100)
+        ]
         self.assertEquals(self.game.pot, 0)
+
+    def test_Game_init2(self):
+        self.assertEquals(self.game.minimumBet, 100)
+
+    def test_PlayersIn(self):
+        self.players = [
+            Player("skorol", 900),
+            Player("nuzhdin", 1000),
+            Player("trakhtenberg", 1100)
+        ]
+        self.assertFalse(self.game.checkMultiplePlayersIn())
+
+
+    def test_view_PlayersOut(self):
+        self.game.players = []
+        self.assertFalse(self.game.checkMultiplePlayersIn())
 
 
 class RulesViewTest(TestCase):
@@ -300,5 +380,11 @@ class TablesTest(TransactionTestCase):
         test_room = Room.objects.create(table=test_table)
         test_players = Players.objects.create(user=test_user, room=test_room, moneyInTable=100)
         self.assertEquals(test_table.getNoOfPlayers(), 1)
+
+    def test_get_no_of_players0(self):
+        test_user = CustomUser.objects.create_user(username="skorol", password="skorol")
+        test_table = Table.objects.create(name="Table", buyIn=200, maxNoOfPlayers=3)
+        test_room = Room.objects.create(table=test_table)
+        test_players = Players.objects.create(user=test_user, room=test_room, moneyInTable=100)
         CustomUser.objects.filter().delete()
         self.assertEquals(test_table.getNoOfPlayers(), 0)
